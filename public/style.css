@@ -103,10 +103,34 @@ h1 {
   gap: 10px;
   padding: 10px 6px;
   border-bottom: 1px solid #eee;
+  background: #fff;
+  transition: background 0.15s ease, opacity 0.15s ease;
 }
 
 .task-item:last-child {
   border-bottom: none;
+}
+
+.task-item.dragging {
+  opacity: 0.4;
+}
+
+.task-item.drag-over {
+  background: #eaf2fb;
+  border-top: 2px solid #0066cc;
+}
+
+.drag-handle {
+  cursor: grab;
+  color: #bbb;
+  font-size: 0.9em;
+  line-height: 1;
+  padding: 0 2px;
+  user-select: none;
+}
+
+.drag-handle:active {
+  cursor: grabbing;
 }
 
 .task-item.completed .task-text {
@@ -140,6 +164,20 @@ h1 {
 .priority-medium { background: #e6a817; }
 .priority-high { background: #cc4444; }
 
+.edit-btn {
+  background: none;
+  border: none;
+  color: #888;
+  font-size: 1em;
+  cursor: pointer;
+  line-height: 1;
+  padding: 4px;
+}
+
+.edit-btn:hover {
+  color: #0066cc;
+}
+
 .delete-btn {
   background: none;
   border: none;
@@ -152,6 +190,15 @@ h1 {
 
 .delete-btn:hover {
   color: #a83232;
+}
+
+.edit-input {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid #0066cc;
+  border-radius: 4px;
+  font-size: 1em;
+  font-family: inherit;
 }
 
 .footer-row {

@@ -1,6 +1,8 @@
 // ---- State ----
 let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
 let currentFilter = 'all';
+let editingId = null;
+let draggedId = null;
 
 // ---- DOM references ----
 const form = document.getElementById('task-form');
@@ -36,6 +38,14 @@ function render() {
     visibleTasks.forEach(task => {
       const li = document.createElement('li');
       li.className = 'task-item' + (task.completed ? ' completed' : '');
+      li.dataset.id = task.id;
+      li.draggable = true;
+
+      // Drag handle
+      const handle = document.createElement('span');
+      handle.className = 'drag-handle';
+      handle.innerHTML = '&#8942;&#8942;';
+      handle.title = 'Drag to reorder';
 
       const checkbox = document.createElement('input');
       checkbox.type = 'checkbox';
@@ -44,28 +54,98 @@ function render() {
 
       const textWrap = document.createElement('div');
       textWrap.className = 'task-text';
-      textWrap.textContent = task.text;
 
-      if (task.due) {
-        const meta = document.createElement('span');
-        meta.className = 'task-meta';
-        meta.textContent = 'Due: ' + task.due;
-        textWrap.appendChild(meta);
+      if (editingId === task.id) {
+        const editInput = document.createElement('input');
+        editInput.type = 'text';
+        editInput.className = 'edit-input';
+        editInput.value = task.text;
+
+        const saveEdit = () => {
+          const newText = editInput.value.trim();
+          if (newText) updateTaskText(task.id, newText);
+          editingId = null;
+          render();
+        };
+
+        editInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') saveEdit();
+          if (e.key === 'Escape') { editingId = null; render(); }
+        });
+        editInput.addEventListener('blur', saveEdit);
+
+        textWrap.appendChild(editInput);
+        // Focus after insertion
+        setTimeout(() => { editInput.focus(); editInput.select(); }, 0);
+      } else {
+        const label = document.createElement('span');
+        label.textContent = task.text;
+        label.addEventListener('click', () => {
+          editingId = task.id;
+          render();
+        });
+        textWrap.appendChild(label);
+
+        if (task.due) {
+          const meta = document.createElement('span');
+          meta.className = 'task-meta';
+          meta.textContent = 'Due: ' + task.due;
+          textWrap.appendChild(meta);
+        }
       }
 
       const priorityTag = document.createElement('span');
       priorityTag.className = 'priority-tag priority-' + task.priority;
       priorityTag.textContent = task.priority;
 
+      const editBtn = document.createElement('button');
+      editBtn.className = 'edit-btn';
+      editBtn.innerHTML = '&#9998;';
+      editBtn.title = 'Edit task';
+      editBtn.addEventListener('click', () => {
+        editingId = task.id;
+        render();
+      });
+
       const deleteBtn = document.createElement('button');
       deleteBtn.className = 'delete-btn';
       deleteBtn.innerHTML = '&times;';
       deleteBtn.addEventListener('click', () => deleteTask(task.id));
 
+      li.appendChild(handle);
       li.appendChild(checkbox);
       li.appendChild(textWrap);
       li.appendChild(priorityTag);
+      li.appendChild(editBtn);
       li.appendChild(deleteBtn);
+
+      // Drag events
+      li.addEventListener('dragstart', () => {
+        draggedId = task.id;
+        li.classList.add('dragging');
+      });
+
+      li.addEventListener('dragend', () => {
+        draggedId = null;
+        li.classList.remove('dragging');
+      });
+
+      li.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        li.classList.add('drag-over');
+      });
+
+      li.addEventListener('dragleave', () => {
+        li.classList.remove('drag-over');
+      });
+
+      li.addEventListener('drop', (e) => {
+        e.preventDefault();
+        li.classList.remove('drag-over');
+        if (draggedId === null || draggedId === task.id) return;
+        reorderTasks(draggedId, task.id);
+      });
+
       taskList.appendChild(li);
     });
   }
@@ -103,6 +183,24 @@ function deleteTask(id) {
 
 function clearCompleted() {
   tasks = tasks.filter(task => !task.completed);
+  saveTasks();
+  render();
+}
+
+function updateTaskText(id, newText) {
+  tasks = tasks.map(task =>
+    task.id === id ? { ...task, text: newText } : task
+  );
+  saveTasks();
+}
+
+function reorderTasks(draggedId, targetId) {
+  const fromIndex = tasks.findIndex(t => t.id === draggedId);
+  const toIndex = tasks.findIndex(t => t.id === targetId);
+  if (fromIndex === -1 || toIndex === -1) return;
+
+  const [movedTask] = tasks.splice(fromIndex, 1);
+  tasks.splice(toIndex, 0, movedTask);
   saveTasks();
   render();
 }
