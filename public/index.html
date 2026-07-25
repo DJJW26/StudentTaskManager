@@ -1,11 +1,44 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<link rel = "stylesheet" href = "style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="style.css">
 <title>Student Task Manager</title>
 </head>
 <body>
-<h1>Student Task Manager</h1>
-<p>Website hosted on Render.</p>
+
+  <h1>Student Task Manager</h1>
+  <p class="subtitle">Website hosted on Render.</p>
+
+  <div class="app">
+
+    <form id="task-form">
+      <input type="text" id="task-input" placeholder="Add a new task..." required>
+      <select id="priority-select">
+        <option value="low">Low</option>
+        <option value="medium" selected>Medium</option>
+        <option value="high">High</option>
+      </select>
+      <input type="date" id="due-input">
+      <button type="submit">Add Task</button>
+    </form>
+
+    <div class="filters">
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="active">Active</button>
+      <button class="filter-btn" data-filter="completed">Completed</button>
+    </div>
+
+    <ul id="task-list"></ul>
+
+    <div class="footer-row">
+      <span id="task-count">0 tasks</span>
+      <button id="clear-completed">Clear Completed</button>
+    </div>
+
+  </div>
+
+<script src="script.js"></script>
 </body>
 </html>
