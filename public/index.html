@@ -40,17 +40,25 @@
   </div>
 
 <script src="script.js">
+
 	fetch('/api/visits', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ page: window.location.pathname })
-}).catch(err => console.error('Visit logging failed:', err));
-fetch('/api/visits/stats')
-  .then(res => res.json())
-  .then(data => {
-    console.log('Total visits:', data.totalVisits);
-    console.log('Recent visits:', data.recentVisits);
-  });
+  		method: 'POST',
+  		headers: { 'Content-Type': 'application/json' },
+  		body: JSON.stringify({ page: window.location.pathname })
+	}).catch(err => console.error('Visit logging failed:', err));
+
+	fetch('/api/visits/stats')
+  	.then(res => res.json())
+  	.then(data => {
+    		console.log('Total visits:', data.totalVisits);
+    		console.log('Recent visits:', data.recentVisits);
+  	});
+	fetch('/api/visits', {
+  		method: 'POST',
+  		headers: { 'Content-Type': 'application/json' },
+  		body: JSON.stringify({ page: window.location.pathname })
+	}).catch(err => console.error('Visit logging failed:', err));
+
 </script>
 </body>
 </html>
